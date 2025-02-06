@@ -1,38 +1,35 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
-import sdk, {
-  AddFrame,
-  SignIn as SignInCore,
-  type Context,
-} from "@farcaster/frame-sdk";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "~/components/ui/card";
-
-import { config } from "~/components/providers/WagmiProvider";
-import { truncateAddress } from "~/lib/truncateAddress";
-import { base, optimism } from "wagmi/chains";
-import { useSession } from "next-auth/react";
-import { createStore } from "mipd";
+import sdk, { AddFrame, type Context } from "@farcaster/frame-sdk";
+import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
-import { PROJECT_TITLE } from "~/lib/constants";
+import { PROJECT_TITLE, ACTIVITIES } from "~/lib/constants";
 
-function ExampleCard() {
+function ActivityForecast({ activity }: { activity: keyof typeof ACTIVITIES }) {
+  const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+  const { tempRange, conditions, icon } = ACTIVITIES[activity];
+  
   return (
-    <Card>
+    <Card className="mt-4">
       <CardHeader>
-        <CardTitle>Welcome to the Frame Template</CardTitle>
-        <CardDescription>
-          This is an example card that you can customize or remove
-        </CardDescription>
+        <CardTitle className="text-lg">{ACTIVITIES[activity].label} Forecast</CardTitle>
       </CardHeader>
       <CardContent>
-        <Label>Place content in a Card here.</Label>
+        <div className="space-y-2">
+          {days.map(day => (
+            <div key={day} className="flex justify-between items-center">
+              <Label className="text-sm">{day}</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{icon}</span>
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  {tempRange}
+                </span>
+                <span className="text-neutral-500 dark:text-neutral-400">{conditions}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
@@ -41,106 +38,63 @@ function ExampleCard() {
 export default function Frame() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
-
-  const [added, setAdded] = useState(false);
-
-  const [addFrameResult, setAddFrameResult] = useState("");
-
-  const addFrame = useCallback(async () => {
-    try {
-      await sdk.actions.addFrame();
-    } catch (error) {
-      if (error instanceof AddFrame.RejectedByUser) {
-        setAddFrameResult(`Not added: ${error.message}`);
-      }
-
-      if (error instanceof AddFrame.InvalidDomainManifest) {
-        setAddFrameResult(`Not added: ${error.message}`);
-      }
-
-      setAddFrameResult(`Error: ${error}`);
-    }
-  }, []);
+  const [selectedActivity, setSelectedActivity] = useState<keyof typeof ACTIVITIES | null>(null);
 
   useEffect(() => {
     const load = async () => {
       const context = await sdk.context;
-      if (!context) {
-        return;
-      }
-
       setContext(context);
-      setAdded(context.client.added);
-
-      // If frame isn't already added, prompt user to add it
-      if (!context.client.added) {
-        addFrame();
-      }
-
-      sdk.on("frameAdded", ({ notificationDetails }) => {
-        setAdded(true);
-      });
-
-      sdk.on("frameAddRejected", ({ reason }) => {
-        console.log("frameAddRejected", reason);
-      });
-
-      sdk.on("frameRemoved", () => {
-        console.log("frameRemoved");
-        setAdded(false);
-      });
-
-      sdk.on("notificationsEnabled", ({ notificationDetails }) => {
-        console.log("notificationsEnabled", notificationDetails);
-      });
-      sdk.on("notificationsDisabled", () => {
-        console.log("notificationsDisabled");
-      });
-
-      sdk.on("primaryButtonClicked", () => {
-        console.log("primaryButtonClicked");
-      });
-
-      console.log("Calling ready");
       sdk.actions.ready({});
-
-      // Set up a MIPD Store, and request Providers.
-      const store = createStore();
-
-      // Subscribe to the MIPD Store.
-      store.subscribe((providerDetails) => {
-        console.log("PROVIDER DETAILS", providerDetails);
-        // => [EIP6963ProviderDetail, EIP6963ProviderDetail, ...]
-      });
-    };
-    if (sdk && !isSDKLoaded) {
-      console.log("Calling load");
       setIsSDKLoaded(true);
-      load();
-      return () => {
-        sdk.removeAllListeners();
-      };
-    }
-  }, [isSDKLoaded, addFrame]);
+    };
+    if (sdk && !isSDKLoaded) load();
+  }, [isSDKLoaded]);
 
-  if (!isSDKLoaded) {
-    return <div>Loading...</div>;
-  }
+  if (!isSDKLoaded) return <div>Loading...</div>;
+
+  const userLocation = context?.verifiedAccounts[0]?.username?.split('.')[0] || "your area";
 
   return (
-    <div
-      style={{
-        paddingTop: context?.client.safeAreaInsets?.top ?? 0,
-        paddingBottom: context?.client.safeAreaInsets?.bottom ?? 0,
-        paddingLeft: context?.client.safeAreaInsets?.left ?? 0,
-        paddingRight: context?.client.safeAreaInsets?.right ?? 0,
-      }}
-    >
+    <div style={{
+      paddingTop: context?.client.safeAreaInsets?.top ?? 0,
+      paddingBottom: context?.client.safeAreaInsets?.bottom ?? 0,
+      paddingLeft: context?.client.safeAreaInsets?.left ?? 0,
+      paddingRight: context?.client.safeAreaInsets?.right ?? 0,
+    }}>
       <div className="w-[300px] mx-auto py-2 px-2">
-        <h1 className="text-2xl font-bold text-center mb-4 text-gray-700 dark:text-gray-300">
+        <h1 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           {PROJECT_TITLE}
         </h1>
-        <ExampleCard />
+        
+        {!selectedActivity ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">Ideal Weather for {userLocation}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-2">
+              {Object.entries(ACTIVITIES).map(([key, activity]) => (
+                <button
+                  key={key}
+                  onClick={() => setSelectedActivity(key as keyof typeof ACTIVITIES)}
+                  className="p-3 rounded-lg border hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                >
+                  <div className="text-lg">{activity.icon}</div>
+                  <Label className="text-sm">{activity.label}</Label>
+                </button>
+              ))}
+            </CardContent>
+          </Card>
+        ) : (
+          <div>
+            <button 
+              onClick={() => setSelectedActivity(null)}
+              className="mb-4 text-sm text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+            >
+              ← Back to Activities
+            </button>
+            <ActivityForecast activity={selectedActivity} />
+          </div>
+        )}
       </div>
     </div>
   );
