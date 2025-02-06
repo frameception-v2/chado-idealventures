@@ -52,7 +52,8 @@ export default function Frame() {
 
   if (!isSDKLoaded) return <div>Loading...</div>;
 
-  const userLocation = context?.verifiedAccounts[0]?.username?.split('.')[0] || "your area";
+  // Fixed: Use correct property path from FrameContext
+  const userLocation = context?.user?.username?.split('.')[0] || "your area";
 
   return (
     <div style={{
