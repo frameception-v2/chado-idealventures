@@ -17,6 +17,8 @@ function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING
     };
   });
   const { tempRange, conditions, icon } = ACTIVITIES[activity];
+  const [minTemp, maxTemp] = tempRange.split('-').map(s => parseInt(s.replace('°C', '').trim()));
+  
   return (
     <Card className="mt-4">
       <CardHeader>
@@ -24,18 +26,24 @@ function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {days.map((day, index) => (
-            <div key={day.fullDate} className="flex justify-between items-center">
-              <Label className="text-sm" title={day.fullDate}>{day.label}</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{icon}</span>
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {tempRange}
-                </span>
-                <span className="text-neutral-500 dark:text-neutral-400">{conditions}</span>
+          {days.map((day, index) => {
+            // Generate random temps within activity range for each day
+            const dailyLow = Math.floor(Math.random() * (maxTemp - minTemp + 1)) + minTemp;
+            const dailyHigh = Math.floor(Math.random() * (maxTemp - dailyLow + 1)) + dailyLow;
+            
+            return (
+              <div key={day.fullDate} className="flex justify-between items-center">
+                <Label className="text-sm" title={day.fullDate}>{day.label}</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{icon}</span>
+                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {dailyLow}°C - {dailyHigh}°C
+                  </span>
+                  <span className="text-neutral-500 dark:text-neutral-400">{conditions}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>
