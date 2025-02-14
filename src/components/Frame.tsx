@@ -88,7 +88,7 @@ export default function Frame() {
               {Object.entries(ACTIVITIES).filter(([key]) => key !== 'GOOD_WEATHER').map(([key, activity]) => (
                 <button
                   key={key}
-                  onClick={() => setSelectedActivity(key as keyof typeof ACTIVITIES)}
+                  onClick={() => setSelectedActivity(key as 'BEACH' | 'SKIING' | 'HIKING' | 'SAILING')}
                   className="p-3 rounded-lg border hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
                 >
                   <div className="text-lg">{activity.icon}</div>
