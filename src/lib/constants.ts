@@ -1,5 +1,5 @@
 export const PROJECT_ID = 'idealventures';
-export const PROJECT_TITLE = "IdealVentures";
+export const PROJECT_TITLE = "Ideal Weather App";
 export const PROJECT_DESCRIPTION = "Your ideal outdoor activity weather forecaster";
 export const ACTIVITIES = {
   BEACH: {
