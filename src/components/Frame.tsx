@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE, ACTIVITIES } from "~/lib/constants";
 
-function ActivityForecast({ activity }: { activity: keyof typeof ACTIVITIES }) {
+function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING' | 'SAILING' }) {
   const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
   const { tempRange, conditions, icon } = ACTIVITIES[activity];
   
