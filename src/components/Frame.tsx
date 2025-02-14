@@ -85,7 +85,7 @@ export default function Frame() {
               <CardTitle className="text-center">Ideal Weather for {userLocation}</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-2">
-              {Object.entries(ACTIVITIES).map(([key, activity]) => (
+              {Object.entries(ACTIVITIES).filter(([key]) => key !== 'GOOD_WEATHER').map(([key, activity]) => (
                 <button
                   key={key}
                   onClick={() => setSelectedActivity(key as keyof typeof ACTIVITIES)}
