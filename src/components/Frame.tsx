@@ -45,7 +45,7 @@ function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING
 export default function Frame() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
-  const [selectedActivity, setSelectedActivity] = useState<keyof typeof ACTIVITIES | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<'BEACH' | 'SKIING' | 'HIKING' | 'SAILING' | null>(null);
 
   useEffect(() => {
     const load = async () => {
