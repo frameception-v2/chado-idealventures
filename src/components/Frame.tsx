@@ -7,9 +7,16 @@ import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE, ACTIVITIES } from "~/lib/constants";
 
 function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING' | 'SAILING' }) {
-  const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+  const today = new Date();
+  const days = Array.from({ length: 5 }, (_, i) => {
+    const date = new Date(today);
+    date.setDate(date.getDate() + i);
+    return {
+      label: date.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' }),
+      fullDate: date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+    };
+  });
   const { tempRange, conditions, icon } = ACTIVITIES[activity];
-  
   return (
     <Card className="mt-4">
       <CardHeader>
@@ -17,9 +24,9 @@ function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {days.map(day => (
-            <div key={day} className="flex justify-between items-center">
-              <Label className="text-sm">{day}</Label>
+          {days.map((day, index) => (
+            <div key={day.fullDate} className="flex justify-between items-center">
+              <Label className="text-sm" title={day.fullDate}>{day.label}</Label>
               <div className="flex items-center gap-2">
                 <span className="text-lg">{icon}</span>
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
