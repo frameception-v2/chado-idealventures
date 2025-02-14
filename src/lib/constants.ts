@@ -31,6 +31,7 @@ export const ACTIVITIES = {
     image: "https://imagedelivery.net/4XuEs-ryvg3qYgZQJ-5y6w/3a3d4a3e-8a3f-4a3e-8a3f-3a3d4a3e8a3f/public"
   },
   GOOD_WEATHER: {
+    label: "🌟 Ideal Weather",
     image: "https://imagedelivery.net/4XuEs-ryvg3qYgZQJ-5y6w/4a3e8a3f-3a3d-4a3e-8a3f-3a3d4a3e8a3f/public",
     tempRange: "",
     conditions: "",
