@@ -17,7 +17,10 @@ function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING
     };
   });
   const { tempRange, conditions, icon } = ACTIVITIES[activity];
-  const [minTemp, maxTemp] = tempRange.split('-').map(s => parseInt(s.replace('°C', '').trim()));
+  // Handle negative temperatures by splitting on "to" and extracting numbers
+  const [minTemp, maxTemp] = tempRange.split('to').map(s => 
+    parseInt(s.replace(/[^-\d]/g, '')) // Extract numbers including negatives
+  );
   
   return (
     <Card className="mt-4">
