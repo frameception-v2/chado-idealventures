@@ -56,13 +56,18 @@ export default function Frame() {
   const userLocation = context?.user?.username?.split('.')[0] || "your area";
 
   return (
-    <div style={{
-      paddingTop: context?.client.safeAreaInsets?.top ?? 0,
-      paddingBottom: context?.client.safeAreaInsets?.bottom ?? 0,
-      paddingLeft: context?.client.safeAreaInsets?.left ?? 0,
-      paddingRight: context?.client.safeAreaInsets?.right ?? 0,
-    }}>
-      <div className="w-[300px] mx-auto py-2 px-2">
+    <div 
+      style={{
+        paddingTop: context?.client.safeAreaInsets?.top ?? 0,
+        paddingBottom: context?.client.safeAreaInsets?.bottom ?? 0,
+        paddingLeft: context?.client.safeAreaInsets?.left ?? 0,
+        paddingRight: context?.client.safeAreaInsets?.right ?? 0,
+        backgroundImage: `url(${selectedActivity ? ACTIVITIES[selectedActivity].image : ACTIVITIES.GOOD_WEATHER.image})`,
+      }}
+      className="bg-cover bg-center min-h-screen bg-no-repeat"
+    >
+      <div className="bg-gradient-to-b from-black/30 to-black/60 absolute inset-0" />
+      <div className="w-[300px] mx-auto py-2 px-2 relative z-10">
         <h1 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           {PROJECT_TITLE}
         </h1>
