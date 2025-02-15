@@ -4,9 +4,9 @@ import { useEffect, useCallback, useState } from "react";
 
 // Generate random temperature within activity's range
 const getRandomTemperature = (range: string, isMax?: boolean) => {
-  const [minStr, maxStr] = range.replace('°C', '').split('-').map(s => s.trim());
-  const min = parseInt(minStr);
-  const max = parseInt(maxStr);
+  const [minStr, maxStr] = range.replace('°C', '').split('to').map(s => s.trim());
+  const min = Number(minStr);
+  const max = Number(maxStr);
   return Math.floor(isMax ? Math.random() * (max - min + 1) + min : Math.random() * (max - min + 1) + min);
 };
 
