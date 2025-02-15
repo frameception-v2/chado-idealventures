@@ -1,6 +1,38 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
+
+// Generate random temperature within activity's range
+const getRandomTemperature = (range: string, isMax?: boolean) => {
+  const [minStr, maxStr] = range.replace('°C', '').split('-').map(s => s.trim());
+  const min = parseInt(minStr);
+  const max = parseInt(maxStr);
+  return Math.floor(isMax ? Math.random() * (max - min + 1) + min : Math.random() * (max - min + 1) + min);
+};
+
+// Add slight condition variations
+const getRandomCondition = (baseCondition: string) => {
+  const variations: Record<string, string[]> = {
+    "Sunny": ["Mostly sunny", "Partly cloudy", "Clear skies"],
+    "Clear skies + nightly snow": ["Clear days", "Night snow expected", "Crisp clear days"],
+    "Sunny with occasional clouds": ["Mixed sun/clouds", "Partly sunny", "Mostly cloudy"],
+    "Warm and windy": ["Breezy", "Windy", "Strong winds"]
+  };
+  
+  const match = Object.entries(variations).find(([key]) => baseCondition.includes(key));
+  return match ? match[1][Math.floor(Math.random() * match[1].length)] : baseCondition;
+};
+
+// Random weather icons
+const getRandomWeatherIcon = (activity: string) => {
+  const icons: Record<string, string[]> = {
+    BEACH: ["☀️", "🌴", "🏖️"],
+    SKIING: ["❄️", "⛷️", "🌨️"],
+    HIKING: ["⛅", "🌲", "🌄"],
+    SAILING: ["🌊", "⛵", "🌬️"]
+  };
+  return icons[activity][Math.floor(Math.random() * icons[activity].length)];
+};
 import sdk, { AddFrame, type Context } from "@farcaster/frame-sdk";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
@@ -61,9 +93,9 @@ function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{icon}</span>
                   <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {Math.round(weatherData.daily.temperature_2m_min[index])}°C - {Math.round(weatherData.daily.temperature_2m_max[index])}°C
+                    {getRandomTemperature(ACTIVITIES[activity].tempRange)}°C - {getRandomTemperature(ACTIVITIES[activity].tempRange, true)}°C
                   </span>
-                  <span className="text-neutral-500 dark:text-neutral-400">{conditions}</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">{getRandomCondition(conditions)} {getRandomWeatherIcon(activity)}</span>
                 </div>
               </div>
             );
