@@ -16,12 +16,33 @@ function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING
       fullDate: date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
     };
   });
-  const { tempRange, conditions, icon } = ACTIVITIES[activity];
-  // Handle negative temperatures by splitting on "to" and extracting numbers
-  const [minTemp, maxTemp] = tempRange.split('to').map(s => 
-    parseInt(s.replace(/[^-\d]/g, '')) // Extract numbers including negatives
-  );
-  
+  const { conditions, icon, latitude, longitude } = ACTIVITIES[activity];
+  const [weatherData, setWeatherData] = useState<{ daily: { time: string[], temperature_2m_max: number[], temperature_2m_min: number[] } }>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>();
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`
+        );
+        const data = await response.json();
+        setWeatherData(data);
+        setError(undefined);
+      } catch (err) {
+        setError('Failed to load weather data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeather();
+  }, [activity, latitude, longitude]);
+
+  if (loading) return <div className="text-center py-4">Loading real-time data...</div>;
+  if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
+
   return (
     <Card className="mt-4">
       <CardHeader>
@@ -29,18 +50,18 @@ function ActivityForecast({ activity }: { activity: 'BEACH' | 'SKIING' | 'HIKING
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {days.map((day, index) => {
-            // Generate random temps within activity range for each day
-            const dailyLow = Math.floor(Math.random() * (maxTemp - minTemp + 1)) + minTemp;
-            const dailyHigh = Math.floor(Math.random() * (maxTemp - dailyLow + 1)) + dailyLow;
+          {weatherData?.daily.time.map((dateString, index) => {
+            const date = new Date(dateString);
+            const dayLabel = date.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
+            const fullDate = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             
             return (
-              <div key={day.fullDate} className="flex justify-between items-center">
-                <Label className="text-sm" title={day.fullDate}>{day.label}</Label>
+              <div key={dateString} className="flex justify-between items-center">
+                <Label className="text-sm" title={fullDate}>{dayLabel}</Label>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{icon}</span>
                   <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {dailyLow}°C - {dailyHigh}°C
+                    {Math.round(weatherData.daily.temperature_2m_min[index])}°C - {Math.round(weatherData.daily.temperature_2m_max[index])}°C
                   </span>
                   <span className="text-neutral-500 dark:text-neutral-400">{conditions}</span>
                 </div>
