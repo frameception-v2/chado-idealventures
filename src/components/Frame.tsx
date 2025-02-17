@@ -4,22 +4,20 @@ import { useEffect, useCallback, useState } from "react";
 
 // Generate random temperature within activity's range
 const getRandomTemperature = (range: string, isMax?: boolean) => {
+  // Special handling for negative temperature ranges (snow sports)
+  if (range.startsWith('-')) {
+    const [minStr, maxStr] = range.replace('°C', '').split(/to/).map(s => s.trim().replace('−', '-'));
+    let min = parseFloat(minStr);
+    let max = parseFloat(maxStr);
+    [min, max] = [Math.min(min, max), Math.max(min, max)]; // Ensure correct order
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  // Standard handling for positive temperature ranges
   const [minStr, maxStr] = range.replace('°C', '').split(/-|to/).map(s => s.trim());
   let min = parseFloat(minStr);
   let max = parseFloat(maxStr);
-
-  // Only convert to positive if range doesn't start with negative
-  if (!range.startsWith('-')) {
-    min = Math.abs(min);
-    max = Math.abs(max);
-  }
-
-  // For snow sports, ensure negative values
-  if (range.startsWith('-')) {
-    min = -Math.abs(min);
-    max = -Math.abs(max);
-    [min, max] = [Math.min(min, max), Math.max(min, max)]; // Ensure correct order
-  }
+  [min, max] = [Math.abs(min), Math.abs(max)]; // Ensure positive values
 
   return Math.floor(
     Math.random() * (max - min + 1) + min
